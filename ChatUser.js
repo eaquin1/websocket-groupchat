@@ -46,20 +46,19 @@ class ChatUser {
             text: text,
         });
     }
-/** handle a member request: alert only user. */
+    /** handle a member request: alert only user. */
 
-  handleMembers(){
-    let memberArray = []
-   
-    console.log(this.room.members)
-    for (let member of this.room.members) {
-      memberArray.push((member));
+    handleMembers() {
+        let memberArray = [...this.room.members].map(m => m.name)
+
+       
+        this.send(
+            JSON.stringify({
+                type: "members",
+                text: memberArray,
+            })
+        );
     }
-      this.send(JSON.stringify(
-        {
-          type: "members", 
-          text: memberArray}))
-  }
 
     async handleJoke() {
         let joke = await this.getJoke().then((resp) => {
@@ -76,7 +75,7 @@ class ChatUser {
     async getJoke() {
         let joke = await axios.get("https://icanhazdadjoke.com/", {
             headers: {
-                Accept: "text/plain"
+                Accept: "text/plain",
             },
         });
 
@@ -93,7 +92,7 @@ class ChatUser {
         let msg = JSON.parse(jsonData);
 
         if (msg.type === "join") this.handleJoin(msg.name);
-        else if(msg.type === "members") this.handleMembers();
+        else if (msg.type === "members") this.handleMembers();
         else if (msg.type === "joke") await this.handleJoke();
         else if (msg.type === "chat") this.handleChat(msg.text);
         else throw new Error(`bad message: ${msg.type}`);
